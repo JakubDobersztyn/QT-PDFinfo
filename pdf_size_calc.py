@@ -1,11 +1,16 @@
 from PyPDF2 import PdfFileReader
 
+rolls = [210, 297, 420, 594, 841, 914]
+roll_dict = {}
 
 def pdf_size_calc(list):
+    for roll in rolls[1:]:
+        roll_dict[roll] = 0
     summ_sqr = 0
     summ_a4 = 0
     summ_a3 = 0
     summ_sqra3 = 0
+    summ_wf = 0
     for file in list:
         pdf = PdfFileReader(open(file, 'rb'))
         number_of_pages = pdf.getNumPages()
@@ -14,7 +19,6 @@ def pdf_size_calc(list):
             a_size = (float(page['/MediaBox'][3]) * 0.3527777778) / 1000
             b_size = (float(page['/MediaBox'][2]) * 0.3527777778) / 1000
             a_size, b_size = rolls_valid(a_size,b_size)
-            print(f"plik: {a_size} x {b_size}")
             if (0.278 < a_size < 0.303 and 0.2 < b_size < 0.217) or (0.278 < b_size < 0.303 and 0.2 < a_size < 0.217):
                 summ_a4 += 1
             elif (0.278 < a_size < 0.303 and 0.41 < b_size < 0.433) or (
@@ -25,10 +29,21 @@ def pdf_size_calc(list):
             else:
                 sqr = a_size * b_size
                 summ_sqr += sqr
-    return summ_a4, summ_a3, ("{:.4f}".format(summ_sqra3)), ("{:.4f}".format(summ_sqr))
+                summ_wf += 1
+
+    return summ_a4, summ_a3, ("{:.4f}".format(summ_sqra3)), ("{:.4f}".format(summ_sqr)), summ_wf, roll_count_str(summ_a3)
 
 
-rolls = [297, 420, 594, 841, 914]
+def roll_count_str(a3):
+    roll_str = ""
+    roll_dict[420] -= a3
+    for i in roll_dict:
+        if roll_dict[i] != 0:
+            roll_str += f"Rolek {i}:    {roll_dict[i]}\n"
+    print(roll_dict)
+    print(a3)
+    print(roll_dict)
+    return roll_str
 
 
 def rolls_valid(size_a, size_b):
@@ -58,7 +73,11 @@ def rolls_valid(size_a, size_b):
                 valid_b = size_b
                 diff_valid_b = 1000
     if diff_valid_a < diff_valid_b:
+        dictvalue = int(round(valid_a*1000, 0))
+        if dictvalue != 210: roll_dict[dictvalue] += 1
         return valid_a, size_b
+    dictvalue = int(round(valid_b*1000, 0))
+    if dictvalue != 210: roll_dict[dictvalue] += 1
     return size_a, valid_b
 
 #
