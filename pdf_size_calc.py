@@ -16,8 +16,10 @@ def pdf_size_calc(list):
         number_of_pages = pdf.getNumPages()
         for page_number in range(number_of_pages):
             page = pdf.getPage(page_number)
-            a_size = (float(page['/MediaBox'][3]) * 0.3527777778) / 1000
-            b_size = (float(page['/MediaBox'][2]) * 0.3527777778) / 1000
+            # a_size = (float(page['/MediaBox'][3]) * 0.3527777778) / 1000
+            # b_size = (float(page['/MediaBox'][2]) * 0.3527777778) / 1000
+            a_size = float(page.mediaBox.getWidth()) * 0.3527777778 / 1000
+            b_size = float(page.mediaBox.getHeight()) * 0.3527777778 / 1000
             a_size, b_size = rolls_valid(a_size,b_size)
             if (0.278 < a_size < 0.303 and 0.2 < b_size < 0.217) or (0.278 < b_size < 0.303 and 0.2 < a_size < 0.217):
                 summ_a4 += 1
@@ -69,7 +71,7 @@ def rolls_valid(size_a, size_b):
         else:
             if not valid_b:
                 valid_b = size_b
-                diff_valid_b = 1000
+                diff_valid_b = 10000000000
     if diff_valid_a < diff_valid_b:
         dictvalue = int(round(valid_a*1000, 0))
         if dictvalue != 210: roll_dict[dictvalue] += 1
