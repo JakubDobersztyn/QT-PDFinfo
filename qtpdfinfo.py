@@ -9,10 +9,10 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from os import path, walk
-from PyQt5.QtWidgets import QApplication, QMainWindow, QListWidget, QListWidgetItem, QPushButton, QMessageBox, QAbstractItemView
+from PyQt5.QtWidgets import QApplication, QMainWindow, QListWidget, QListWidgetItem, QPushButton, QMessageBox, QAbstractItemView, QWidget
 from PyQt5.QtCore import Qt, QUrl, QRect
 import pdf_size_calc
-
+from PyQt5.QtPrintSupport import QPrinter, QPrintDialog
 
 class ListboxWidget(QListWidget):
     def __init__(self, parent=None):
@@ -92,7 +92,7 @@ class ListboxWidget(QListWidget):
 
 
 
-class Ui_MainWindow(object):
+class Ui_MainWindow(QWidget):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1029, 554)
@@ -113,6 +113,11 @@ class Ui_MainWindow(object):
         self.printButton = QtWidgets.QPushButton(self.centralwidget)
         self.printButton.setGeometry(QtCore.QRect(820, 470, 89, 25))
         self.printButton.setObjectName("printButton")
+        self.printButton.clicked.connect(self.printDialog)
+        self.textEdit = QtWidgets.QTextEdit(self.centralwidget)
+        self.textEdit.setObjectName("textEdit")
+        self.textEdit.setGeometry(QtCore.QRect(0, 0, 1, 1))
+
         self.scrollArea = QtWidgets.QScrollArea(self.centralwidget)
         self.scrollArea.setGeometry(QtCore.QRect(550, 10, 461, 441))
         self.scrollArea.setWidgetResizable(True)
@@ -209,6 +214,13 @@ class Ui_MainWindow(object):
         self.actionAbout_author.setText(_translate("MainWindow", "About author"))
         self.actionAbout_author.setStatusTip(_translate("MainWindow", "Display author info"))
 
+    def printDialog(self):
+        printer = QPrinter(QPrinter.HighResolution)
+        dialog = QPrintDialog(printer, self)
+        self.textEdit.setText(self.pdfInfos.text())
+
+        if dialog.exec_() == QPrintDialog.Accepted:
+            self.textEdit.print_(printer)
 
 if __name__ == "__main__":
     import sys
