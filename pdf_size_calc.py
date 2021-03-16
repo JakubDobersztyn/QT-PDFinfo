@@ -40,9 +40,7 @@ def roll_count_str(a3):
     for i in roll_dict:
         if roll_dict[i] != 0:
             roll_str += f"Rolek {i}:    {roll_dict[i]}\n"
-    print(roll_dict)
-    print(a3)
-    print(roll_dict)
+
     return roll_str
 
 
