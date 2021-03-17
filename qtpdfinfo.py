@@ -61,13 +61,13 @@ class ListboxWidget(QListWidget):
     def print_calcs(self, lst):
         # self.clear()
 
-        a, b, c, d, e, f = pdf_size_calc.pdf_size_calc(lst)
-        calc = ListboxWidget.calcs_format(a,b,c,d,e,f)
+        a, b, c, d, e = pdf_size_calc.pdf_size_calc(lst)
+        calc = ListboxWidget.calcs_format(a,b,c,d,e)
         ui.pdfInfos.setText(calc)
 
     @classmethod
-    def calcs_format(cls, a, b, c, d, e, f):
-        fstr = f"Ilosc a4:    {a} \n\nIlosc a3:    {b}   |   Metry a3:    {c} \n\nMetry:    {d}\nIlosc arkuszy wf:    {e}\n\n{f}"
+    def calcs_format(cls, a, b, c, d, e):
+        fstr = f"Ilosc a4:    {a} \n\nIlosc a3:    {b}   |   Metry a3:    {c} \n\nMetry:    {d}\nIlosc arkuszy wf:    {e}\n\n"
         return fstr
 
 

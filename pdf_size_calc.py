@@ -13,11 +13,10 @@ def pdf_size_calc(list):
     summ_wf = 0
     for file in list:
         pdf = PdfFileReader(open(file, 'rb'))
+        pdf.strict=False
         number_of_pages = pdf.getNumPages()
         for page_number in range(number_of_pages):
             page = pdf.getPage(page_number)
-            # a_size = (float(page['/MediaBox'][3]) * 0.3527777778) / 1000
-            # b_size = (float(page['/MediaBox'][2]) * 0.3527777778) / 1000
             a_size = float(page.mediaBox.getWidth()) * 0.3527777778 / 1000
             b_size = float(page.mediaBox.getHeight()) * 0.3527777778 / 1000
             a_size, b_size = rolls_valid(a_size,b_size)
@@ -33,12 +32,12 @@ def pdf_size_calc(list):
                 summ_sqr += sqr
                 summ_wf += 1
 
-    return summ_a4, summ_a3, ("{:.4f}".format(summ_sqra3)), ("{:.4f}".format(summ_sqr)), summ_wf, roll_count_str(summ_a3)
+    return summ_a4, summ_a3, ("{:.4f}".format(summ_sqra3)), ("{:.4f}".format(summ_sqr)), summ_wf
 
 
-def roll_count_str(a3):
+def roll_count_str():
     roll_str = ""
-    roll_dict[420] -= a3
+
     for i in roll_dict:
         if roll_dict[i] != 0:
             roll_str += f"Rolek {i}:    {roll_dict[i]}\n"
@@ -73,11 +72,9 @@ def rolls_valid(size_a, size_b):
                 valid_b = size_b
                 diff_valid_b = 10000000000
     if diff_valid_a < diff_valid_b:
-        dictvalue = int(round(valid_a*1000, 0))
-        if dictvalue != 210: roll_dict[dictvalue] += 1
+        
         return valid_a, size_b
-    dictvalue = int(round(valid_b*1000, 0))
-    if dictvalue != 210: roll_dict[dictvalue] += 1
+    
     return size_a, valid_b
 
 #
