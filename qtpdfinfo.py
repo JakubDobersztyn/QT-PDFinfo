@@ -9,10 +9,12 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from os import path, walk
-from PyQt5.QtWidgets import QApplication, QMainWindow, QListWidget, QListWidgetItem, QPushButton, QMessageBox, QAbstractItemView, QWidget
+from PyQt5.QtWidgets import QApplication, QMainWindow, QListWidget, QListWidgetItem, QPushButton, QMessageBox, \
+    QAbstractItemView, QWidget, QSpinBox
 from PyQt5.QtCore import Qt, QUrl, QRect
 import pdf_size_calc
 from PyQt5.QtPrintSupport import QPrinter, QPrintDialog
+
 
 class ListboxWidget(QListWidget):
     def __init__(self, parent=None):
@@ -62,15 +64,13 @@ class ListboxWidget(QListWidget):
         # self.clear()
 
         a, b, c, d, e = pdf_size_calc.pdf_size_calc(lst)
-        calc = ListboxWidget.calcs_format(a,b,c,d,e)
+        calc = ListboxWidget.calcs_format(a, b, c, d, e)
         ui.pdfInfos.setText(calc)
 
     @classmethod
     def calcs_format(cls, a, b, c, d, e):
         fstr = f"Ilosc a4:    {a} \n\nIlosc a3:    {b}   |   Metry a3:    {c} \n\nMetry:    {d}\nIlosc arkuszy wf:    {e}\n\n"
         return fstr
-
-
 
     def del_selected(self):
         newlist = []
@@ -89,7 +89,6 @@ class ListboxWidget(QListWidget):
         # print(listItems)
         self.print_calcs(newlist)
         # self.mimeData().clear()
-
 
 
 class Ui_MainWindow(QWidget):
@@ -114,6 +113,10 @@ class Ui_MainWindow(QWidget):
         self.printButton.setGeometry(QtCore.QRect(820, 470, 89, 25))
         self.printButton.setObjectName("printButton")
         self.printButton.clicked.connect(self.printDialog)
+
+        self.spinBox = QSpinBox(self.centralwidget)
+        self.spinBox.setGeometry(620, 470, 89, 25)
+
         self.textEdit = QtWidgets.QTextEdit(self.centralwidget)
         self.textEdit.setObjectName("textEdit")
         self.textEdit.setGeometry(QtCore.QRect(0, 0, 1, 1))
@@ -183,8 +186,6 @@ class Ui_MainWindow(QWidget):
         self.listWidget.clear()
         self.listWidget.links = []
 
-
-
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "QT PDFinfo"))
@@ -222,8 +223,10 @@ class Ui_MainWindow(QWidget):
         if dialog.exec_() == QPrintDialog.Accepted:
             self.textEdit.print_(printer)
 
+
 if __name__ == "__main__":
     import sys
+
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
