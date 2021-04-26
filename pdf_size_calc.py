@@ -1,4 +1,5 @@
-from PyPDF2 import PdfFileReader
+from PyPDF2 import PdfFileReader, PdfFileWriter
+
 
 rolls = [210, 297, 420, 594, 841, 914]
 roll_dict = {}
@@ -14,9 +15,13 @@ def pdf_size_calc(list):
     summ_wf = 0
     summ_raw = 0
     for file in list:
-        pdf = PdfFileReader(open(file, 'rb'))
+        pdfFileObj = open(file, 'rb')
+
+        pdf = PdfFileReader(pdfFileObj)
         pdf.strict = False
+
         number_of_pages = pdf.getNumPages()
+
         for page_number in range(number_of_pages):
             page = pdf.getPage(page_number)
             a_size = float(page.mediaBox.getWidth()) * 0.3527777778 / 1000

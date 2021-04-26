@@ -74,17 +74,21 @@ class ListboxWidget(QListWidget):
 
     @classmethod
     def calcs_format(cls, i, a, b, c, d, e, f):
-        a_count = float("{:.4f}".format(a*i))
-        b_count = float("{:.4f}".format(b*i))
-        c_count = float("{:.4f}".format(c*i))
-        d_count = float("{:.4f}".format(d*i))
-        cd_count = float("{:.4f}".format(c*i*d))
-        e_count = float("{:.4f}".format(e*i))
-        f_count = float("{:.4f}".format(f*i))
-        fstr = f"Ilosc a4:    {a} \n\nIlosc a3:    {b}   |   Metry a3:    {c} \n\nMetry:    {d}    Razem z a3:    {c+d}\n" \
-               f"Ilosc arkuszy wf:    {e}\n\nNetto:    {f}\n\n\n---------------------------------------\n\n\nObliczono kopie x{i}:\n\n" \
-               f"Ilosc a4:    {a_count} \n\nIlosc a3:    {b_count}   |   Metry a3:    {c_count} \n\nMetry:    {d_count}    Razem z a3:    {cd_count}\n" \
-               f"Ilosc arkuszy wf:    {e_count}\n\nNetto:    {f_count}\n\n\n"
+        if i>1:
+            a_count = int(a*i)
+            b_count = int(b*i)
+            c_count = float("{:.4f}".format(c*i))
+            d_count = float("{:.4f}".format(d*i))
+            cd_count = float("{:.4f}".format(c_count+d_count))
+            e_count = int(e*i)
+            f_count = float("{:.4f}".format(f*i))
+            fstr = f"Ilosc a4:    {a} \n\nIlosc a3:    {b}   |   Metry a3:    {c} \n\nMetry:    {d}    Razem z a3:    {c+d}\n" \
+                   f"Ilosc arkuszy wf:    {e}\n\nNetto:    {f}\n\n\n---------------------------------------\n\n\nObliczono kopie x{i}:\n\n" \
+                   f"Ilosc a4:    {a_count} \n\nIlosc a3:    {b_count}   |   Metry a3:    {c_count} \n\nMetry:    {d_count}    Razem z a3:    {cd_count}\n" \
+                   f"Ilosc arkuszy wf:    {e_count}\n\nNetto:    {f_count}\n\n\n"
+        else:
+            fstr = f"Ilosc a4:    {a} \n\nIlosc a3:    {b}   |   Metry a3:    {c} \n\nMetry:    {d}    Razem z a3:    {c + d}\n" \
+                   f"Ilosc arkuszy wf:    {e}\n\nNetto:    {f}"
         return fstr
 
     def del_selected(self):
@@ -242,7 +246,7 @@ class Ui_MainWindow(QWidget):
         self.textEdit.clear()
         printer = QPrinter(QPrinter.HighResolution)
         dialog = QPrintDialog(printer, self)
-        logo = QTextDocumentFragment.fromHtml("<p align='center'><img src='logo.jpg'></p><br><br><br><br><br>")
+        logo = QTextDocumentFragment.fromHtml("<p align='center'><img src='logo.png'></p><br><br><br><br><br>")
         calc_text = QTextDocumentFragment.fromPlainText(self.pdfInfos.text())
         self.textEdit.textCursor().insertFragment(logo)
         self.textEdit.textCursor().insertFragment(calc_text)
