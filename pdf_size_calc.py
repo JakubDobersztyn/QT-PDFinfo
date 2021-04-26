@@ -3,6 +3,7 @@ from PyPDF2 import PdfFileReader
 rolls = [210, 297, 420, 594, 841, 914]
 roll_dict = {}
 
+
 def pdf_size_calc(list):
     for roll in rolls[1:]:
         roll_dict[roll] = 0
@@ -11,28 +12,32 @@ def pdf_size_calc(list):
     summ_a3 = 0
     summ_sqra3 = 0
     summ_wf = 0
+    summ_raw = 0
     for file in list:
         pdf = PdfFileReader(open(file, 'rb'))
-        pdf.strict=False
+        pdf.strict = False
         number_of_pages = pdf.getNumPages()
         for page_number in range(number_of_pages):
             page = pdf.getPage(page_number)
             a_size = float(page.mediaBox.getWidth()) * 0.3527777778 / 1000
             b_size = float(page.mediaBox.getHeight()) * 0.3527777778 / 1000
-            a_size, b_size = rolls_valid(a_size,b_size)
-            if (0.278 < a_size < 0.303 and 0.2 < b_size < 0.217) or (0.278 < b_size < 0.303 and 0.2 < a_size < 0.217):
+            a_size_valid, b_size_valid = rolls_valid(a_size, b_size)
+            if (0.278 < a_size_valid < 0.303 and 0.2 < b_size_valid < 0.217) or (
+                    0.278 < b_size_valid < 0.303 and 0.2 < a_size_valid < 0.217):
                 summ_a4 += 1
-            elif (0.278 < a_size < 0.303 and 0.41 < b_size < 0.433) or (
-                    0.278 < b_size < 0.303 and 0.41 < a_size < 0.433):
+            elif (0.278 < a_size_valid < 0.303 and 0.41 < b_size_valid < 0.433) or (
+                    0.278 < b_size_valid < 0.303 and 0.41 < a_size_valid < 0.433):
                 summ_a3 += 1
-                sqr = a_size * b_size
+                sqr = a_size_valid * b_size_valid
+                summ_raw += (a_size * b_size)
                 summ_sqra3 += sqr
             else:
-                sqr = a_size * b_size
+                sqr = a_size_valid * b_size_valid
                 summ_sqr += sqr
+                summ_raw += (a_size * b_size)
                 summ_wf += 1
 
-    return summ_a4, summ_a3, ("{:.4f}".format(summ_sqra3)), ("{:.4f}".format(summ_sqr)), summ_wf
+    return summ_a4, summ_a3, float("{:.4f}".format(summ_sqra3)), float("{:.4f}".format(summ_sqr)), summ_wf, float("{:.4f}".format(summ_raw))
 
 
 def roll_count_str():
@@ -72,9 +77,8 @@ def rolls_valid(size_a, size_b):
                 valid_b = size_b
                 diff_valid_b = 10000000000
     if diff_valid_a < diff_valid_b:
-        
         return valid_a, size_b
-    
+
     return size_a, valid_b
 
 #

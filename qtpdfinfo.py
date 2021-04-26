@@ -12,6 +12,7 @@ from os import path, walk
 from PyQt5.QtWidgets import QApplication, QMainWindow, QListWidget, QListWidgetItem, QPushButton, QMessageBox, \
     QAbstractItemView, QWidget, QSpinBox
 from PyQt5.QtCore import Qt, QUrl, QRect
+from PyQt5.QtGui import QTextDocumentFragment
 import pdf_size_calc
 from PyQt5.QtPrintSupport import QPrinter, QPrintDialog
 
@@ -55,21 +56,35 @@ class ListboxWidget(QListWidget):
                         self.links.append(str(url.toLocalFile()))
             # print(len(self.links))
             self.addItems(self.links)
-            self.print_calcs(self.links)
+            self.print_calcs()
 
         else:
             event.ignore()
 
-    def print_calcs(self, lst):
+    def print_calcs(self):
         # self.clear()
-
-        a, b, c, d, e = pdf_size_calc.pdf_size_calc(lst)
-        calc = ListboxWidget.calcs_format(a, b, c, d, e)
-        ui.pdfInfos.setText(calc)
+        lst = self.links
+        count = int(ui.spinBox.text())
+        a4, a3, sqr_a3, sqr_wf, wf_count, sqr_raw = pdf_size_calc.pdf_size_calc(lst)
+        calc = ListboxWidget.calcs_format(count, a4, a3, sqr_a3, sqr_wf, wf_count, sqr_raw)
+        try:
+            ui.pdfInfos.setText(calc)
+        except:
+            print()
 
     @classmethod
-    def calcs_format(cls, a, b, c, d, e):
-        fstr = f"Ilosc a4:    {a} \n\nIlosc a3:    {b}   |   Metry a3:    {c} \n\nMetry:    {d}\nIlosc arkuszy wf:    {e}\n\n"
+    def calcs_format(cls, i, a, b, c, d, e, f):
+        a_count = float("{:.4f}".format(a*i))
+        b_count = float("{:.4f}".format(b*i))
+        c_count = float("{:.4f}".format(c*i))
+        d_count = float("{:.4f}".format(d*i))
+        cd_count = float("{:.4f}".format(c*i*d))
+        e_count = float("{:.4f}".format(e*i))
+        f_count = float("{:.4f}".format(f*i))
+        fstr = f"Ilosc a4:    {a} \n\nIlosc a3:    {b}   |   Metry a3:    {c} \n\nMetry:    {d}    Razem z a3:    {c+d}\n" \
+               f"Ilosc arkuszy wf:    {e}\n\nNetto:    {f}\n\n\n---------------------------------------\n\n\nObliczono kopie x{i}:\n\n" \
+               f"Ilosc a4:    {a_count} \n\nIlosc a3:    {b_count}   |   Metry a3:    {c_count} \n\nMetry:    {d_count}    Razem z a3:    {cd_count}\n" \
+               f"Ilosc arkuszy wf:    {e_count}\n\nNetto:    {f_count}\n\n\n"
         return fstr
 
     def del_selected(self):
@@ -114,8 +129,13 @@ class Ui_MainWindow(QWidget):
         self.printButton.setObjectName("printButton")
         self.printButton.clicked.connect(self.printDialog)
 
+
         self.spinBox = QSpinBox(self.centralwidget)
         self.spinBox.setGeometry(620, 470, 89, 25)
+        # self.spinBox.setValue(1)
+        self.spinBox.setMinimum(1)
+        self.spinBox.valueChanged.connect(lambda: self.listWidget.print_calcs())
+
 
         self.textEdit = QtWidgets.QTextEdit(self.centralwidget)
         self.textEdit.setObjectName("textEdit")
@@ -179,6 +199,9 @@ class Ui_MainWindow(QWidget):
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
+
+
+
     def closeEvent(self, event):
         app.quit()
 
@@ -216,9 +239,14 @@ class Ui_MainWindow(QWidget):
         self.actionAbout_author.setStatusTip(_translate("MainWindow", "Display author info"))
 
     def printDialog(self):
+        self.textEdit.clear()
         printer = QPrinter(QPrinter.HighResolution)
         dialog = QPrintDialog(printer, self)
-        self.textEdit.setText(self.pdfInfos.text())
+        logo = QTextDocumentFragment.fromHtml("<p align='center'><img src='logo.jpg'></p><br><br><br><br><br>")
+        calc_text = QTextDocumentFragment.fromPlainText(self.pdfInfos.text())
+        self.textEdit.textCursor().insertFragment(logo)
+        self.textEdit.textCursor().insertFragment(calc_text)
+        # self.textEdit.setText(self.pdfInfos.text())
 
         if dialog.exec_() == QPrintDialog.Accepted:
             self.textEdit.print_(printer)
