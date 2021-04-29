@@ -68,7 +68,7 @@ def rolls_valid(size_a, size_b):
         roll = rolls[i] / 1000 + 0.006
         if valid_a: break
         if i < (len(rolls) - 1):
-            if roll < size_a < (float(rolls[i + 1]) / 1000):
+            if roll < size_a < (float(rolls[i + 1]) / 1000 + 0.006):
                 valid_a = rolls[i + 1] / 1000
                 diff_valid_a = valid_a - size_a
         else:
@@ -79,7 +79,7 @@ def rolls_valid(size_a, size_b):
         roll = rolls[i] / 1000 + 0.006
         if valid_b: break
         if i < (len(rolls) - 1):
-            if roll < size_b < (float(rolls[i + 1]) / 1000):
+            if roll < size_b < (float(rolls[i + 1]) / 1000 + 0.006):
                 valid_b = rolls[i + 1] / 1000
                 diff_valid_b = valid_b - size_b
                 break
@@ -87,6 +87,7 @@ def rolls_valid(size_a, size_b):
             if not valid_b:
                 valid_b = size_b
                 diff_valid_b = 10000000000
+    # print(diff_valid_a, diff_valid_b)
     if diff_valid_a < diff_valid_b:
         return valid_a, size_b
 
