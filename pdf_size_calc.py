@@ -14,35 +14,41 @@ def pdf_size_calc(list):
     summ_sqra3 = 0
     summ_wf = 0
     summ_raw = 0
+    invalid_pdfs = []
     for file in list:
-        pdfFileObj = open(file, 'rb')
+        try:
+            pdfFileObj = open(file, 'rb')
 
-        pdf = PdfFileReader(pdfFileObj)
-        pdf.strict = False
+            pdf = PdfFileReader(pdfFileObj)
+            pdf.strict = False
 
-        number_of_pages = pdf.getNumPages()
+            number_of_pages = pdf.getNumPages()
 
-        for page_number in range(number_of_pages):
-            page = pdf.getPage(page_number)
-            a_size = float(page.mediaBox.getWidth()) * 0.3527777778 / 1000
-            b_size = float(page.mediaBox.getHeight()) * 0.3527777778 / 1000
-            a_size_valid, b_size_valid = rolls_valid(a_size, b_size)
-            if (0.278 < a_size_valid < 0.303 and 0.2 < b_size_valid < 0.217) or (
-                    0.278 < b_size_valid < 0.303 and 0.2 < a_size_valid < 0.217):
-                summ_a4 += 1
-            elif (0.278 < a_size_valid < 0.303 and 0.41 < b_size_valid < 0.433) or (
-                    0.278 < b_size_valid < 0.303 and 0.41 < a_size_valid < 0.433):
-                summ_a3 += 1
-                sqr = a_size_valid * b_size_valid
-                summ_raw += (a_size * b_size)
-                summ_sqra3 += sqr
-            else:
-                sqr = a_size_valid * b_size_valid
-                summ_sqr += sqr
-                summ_raw += (a_size * b_size)
-                summ_wf += 1
+            for page_number in range(number_of_pages):
+                page = pdf.getPage(page_number)
+                a_size = float(page.mediaBox.getWidth()) * 0.3527777778 / 1000
+                b_size = float(page.mediaBox.getHeight()) * 0.3527777778 / 1000
+                a_size_valid, b_size_valid = rolls_valid(a_size, b_size)
+                # print(f"{a_size} x {b_size} ====> {a_size_valid} x {b_size_valid}")
+                if (0.278 < a_size_valid < 0.303 and 0.2 < b_size_valid < 0.217) or (
+                        0.278 < b_size_valid < 0.303 and 0.2 < a_size_valid < 0.217):
+                    summ_a4 += 1
+                elif (0.278 < a_size_valid < 0.303 and 0.41 < b_size_valid < 0.433) or (
+                        0.278 < b_size_valid < 0.303 and 0.41 < a_size_valid < 0.433):
+                    summ_a3 += 1
+                    sqr = a_size_valid * b_size_valid
+                    summ_raw += (a_size * b_size)
+                    summ_sqra3 += sqr
+                else:
+                    sqr = a_size_valid * b_size_valid
+                    summ_sqr += sqr
+                    summ_raw += (a_size * b_size)
+                    summ_wf += 1
+        except:
+            invalid_pdfs.append(file)
 
-    return summ_a4, summ_a3, float("{:.4f}".format(summ_sqra3)), float("{:.4f}".format(summ_sqr)), summ_wf, float("{:.4f}".format(summ_raw))
+    return summ_a4, summ_a3, float("{:.4f}".format(summ_sqra3)), float("{:.4f}".format(summ_sqr)), summ_wf, float("{:.4f}".format(summ_raw)), invalid_pdfs
+
 
 
 def roll_count_str():

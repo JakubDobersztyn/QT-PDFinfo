@@ -12,7 +12,7 @@ from os import path, walk
 from PyQt5.QtWidgets import QApplication, QMainWindow, QListWidget, QListWidgetItem, QPushButton, QMessageBox, \
     QAbstractItemView, QWidget, QSpinBox
 from PyQt5.QtCore import Qt, QUrl, QRect
-from PyQt5.QtGui import QTextDocumentFragment
+from PyQt5.QtGui import QTextDocumentFragment, QColor
 import pdf_size_calc
 from PyQt5.QtPrintSupport import QPrinter, QPrintDialog
 
@@ -57,6 +57,7 @@ class ListboxWidget(QListWidget):
             # print(len(self.links))
             self.addItems(self.links)
             self.print_calcs()
+            # print(errors)
 
         else:
             event.ignore()
@@ -65,15 +66,22 @@ class ListboxWidget(QListWidget):
         # self.clear()
         lst = self.links
         count = int(ui.spinBox.text())
-        a4, a3, sqr_a3, sqr_wf, wf_count, sqr_raw = pdf_size_calc.pdf_size_calc(lst)
-        calc = ListboxWidget.calcs_format(count, a4, a3, sqr_a3, sqr_wf, wf_count, sqr_raw)
+        a4, a3, sqr_a3, sqr_wf, wf_count, sqr_raw, invalid_pdfs = pdf_size_calc.pdf_size_calc(lst)
+        calc = ListboxWidget.calcs_format(count, a4, a3, sqr_a3, sqr_wf, wf_count, sqr_raw, invalid_pdfs)
         try:
             ui.pdfInfos.setText(calc)
         except:
             print()
+        # print(self.item(0).text())
+        # print(invalid_pdfs)
+        for i in range(self.count()):
+            if self.item(i).text() in invalid_pdfs:
+                self.item(i).setForeground(QColor("red"))
+                # print(f'{self.item(i).text()}')
 
     @classmethod
-    def calcs_format(cls, i, a, b, c, d, e, f):
+    def calcs_format(cls, i, a, b, c, d, e, f, g):
+        cd = float("{:.4f}".format(c+d))
         if i>1:
             a_count = int(a*i)
             b_count = int(b*i)
@@ -82,13 +90,13 @@ class ListboxWidget(QListWidget):
             cd_count = float("{:.4f}".format(c_count+d_count))
             e_count = int(e*i)
             f_count = float("{:.4f}".format(f*i))
-            fstr = f"Ilosc a4:    {a} \n\nIlosc a3:    {b}   |   Metry a3:    {c} \n\nMetry:    {d}    Razem z a3:    {c+d}\n" \
-                   f"Ilosc arkuszy wf:    {e}\n\nNetto:    {f}\n\n\n---------------------------------------\n\n\nObliczono kopie x{i}:\n\n" \
+            fstr = f"Ilosc a4:    {a} \n\nIlosc a3:    {b}   |   Metry a3:    {c} \n\nMetry:    {d}    Razem z a3:    {cd}\n" \
+                   f"Ilosc arkuszy wf:    {e}\n\nNetto:    {f}\n\nErrors: {len(g)}\n\n\n---------------------------------------\n\n\nObliczono kopie x{i}:\n\n" \
                    f"Ilosc a4:    {a_count} \n\nIlosc a3:    {b_count}   |   Metry a3:    {c_count} \n\nMetry:    {d_count}    Razem z a3:    {cd_count}\n" \
                    f"Ilosc arkuszy wf:    {e_count}\n\nNetto:    {f_count}\n\n\n"
         else:
-            fstr = f"Ilosc a4:    {a} \n\nIlosc a3:    {b}   |   Metry a3:    {c} \n\nMetry:    {d}    Razem z a3:    {c + d}\n" \
-                   f"Ilosc arkuszy wf:    {e}\n\nNetto:    {f}"
+            fstr = f"Ilosc a4:    {a} \n\nIlosc a3:    {b}   |   Metry a3:    {c} \n\nMetry:    {d}    Razem z a3:    {cd}\n" \
+                   f"Ilosc arkuszy wf:    {e}\n\nNetto:    {f}\n\nErrors: {len(g)}"
         return fstr
 
     def del_selected(self):
@@ -106,7 +114,7 @@ class ListboxWidget(QListWidget):
             newlist.append(self.item(i).text())
         # print("newlist", newlist)
         # print(listItems)
-        self.print_calcs(newlist)
+        self.print_calcs()
         # self.mimeData().clear()
 
 
@@ -138,6 +146,7 @@ class Ui_MainWindow(QWidget):
         self.spinBox.setGeometry(620, 470, 89, 25)
         # self.spinBox.setValue(1)
         self.spinBox.setMinimum(1)
+        self.spinBox.setMaximum(9999)
         self.spinBox.valueChanged.connect(lambda: self.listWidget.print_calcs())
 
 
